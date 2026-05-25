@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 6 — WebRTC Аудіочат</title>
+
+  <style>
+    /* ── Скидання та базові стилі ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0f1117;
+      color: #e2e4ec;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Екран входу ──────────────────────────────────────────────────── */
+    #login-screen {
+      background: #1a1d2e;
+      border: 1px solid #2e3150;
+      border-radius: 14px;
+      padding: 44px 40px;
+      width: 360px;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+
+    #login-screen h1 { font-size: 1.6rem; margin-bottom: 6px; color: #ffffff; }
+    #login-screen .subtitle { color: #7a7f99; font-size: 0.9rem; margin-bottom: 28px; }
+
+    #login-screen input {
+      width: 100%;
+      padding: 11px 16px;
+      background: #0f1117;
+      border: 1.5px solid #2e3150;
+      border-radius: 8px;
+      color: #e2e4ec;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #login-screen input:focus { border-color: #5c6bc0; }
+    #login-screen input::placeholder { color: #4a4f69; }
+
+    #login-screen button {
+      margin-top: 14px;
+      width: 100%;
+      padding: 12px;
+      background: #5c6bc0;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #login-screen button:hover { background: #4a5ab0; }
+
+    /* ── Екран чату ───────────────────────────────────────────────────── */
+    #chat-screen {
+      display: none;
+      flex-direction: column;
+      width: 820px;
+      max-width: 98vw;
+      height: 92vh;
+      background: #1a1d2e;
+      border: 1px solid #2e3150;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+
+    /* Шапка */
+    #chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: #13152a;
+      border-bottom: 1px solid #2e3150;
+    }
+
+    #chat-header .room-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    #chat-header .mic-icon { font-size: 1.2rem; }
+
+    #leave-btn {
+      padding: 7px 18px;
+      background: transparent;
+      border: 1px solid #e05252;
+      color: #e05252;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    #leave-btn:hover { background: #e05252; color: #fff; }
+
+    /* Основна область */
+    #chat-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Ліва панель — учасники */
+    #participants-panel {
+      width: 200px;
+      flex-shrink: 0;
+      border-right: 1px solid #2e3150;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 10px;
+    }
+
+    #participants-panel h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #5c6bc0;
+    }
+
+    #peer-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #peer-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #b0b4cc;
+    }
+
+    .peer-dot {
+      width: 8px; height: 8px;
+      background: #4caf87;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Myself entry (завжди перший) */
+    .peer-me { color: #7c8bdc; font-style: italic; }
+
+    /* Права панель — лог */
+    #log-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    #log-panel h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #5c6bc0;
+      flex-shrink: 0;
+    }
+
+    #event-log {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 0.82rem;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+    }
+
+    /* Типи записів логу */
+    .log-entry {
+      padding: 5px 10px;
+      border-radius: 5px;
+      line-height: 1.4;
+    }
+    .log-info    { background: #1e2235; color: #8899cc; }
+    .log-success { background: #1a2e25; color: #5dbf90; }
+    .log-warn    { background: #2e2a1a; color: #d4a83a; }
+    .log-error   { background: #2e1a1a; color: #e05252; }
+
+    .log-time { color: #4a4f69; margin-right: 6px; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Екран входу ─────────────────────────────────────────────────────── -->
+  <div id="login-screen">
+    <h1>🎙 WebRTC Аудіочат</h1>
+    <p class="subtitle">Введіть назву кімнати для підключення</p>
+    <input id="room-input" type="text" placeholder="Назва кімнати..." maxlength="40" autocomplete="off" />
+    <button id="join-btn">Увійти</button>
+  </div>
+
+  <!-- ── Екран чату ──────────────────────────────────────────────────────── -->
+  <div id="chat-screen">
+    <div id="chat-header">
+      <div class="room-info">
+        <span class="mic-icon">🎙</span>
+        <span>Кімната: <strong id="room-name-display"></strong></span>
+      </div>
+      <button id="leave-btn">Вийти</button>
+    </div>
+
+    <div id="chat-body">
+      <!-- Учасники -->
+      <div id="participants-panel">
+        <h3>Учасники</h3>
+        <ul id="peer-list">
+          <!-- Заповнюється динамічно -->
+        </ul>
+      </div>
+
+      <!-- Лог подій -->
+      <div id="log-panel">
+        <h3>Лог подій</h3>
+        <div id="event-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Socket.io клієнт (роздається сервером автоматично) -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    // ════════════════════════════════════════════════════════════════════
+    //  DOM-елементи
+    // ════════════════════════════════════════════════════════════════════
+    const loginScreen     = document.getElementById('login-screen');
+    const chatScreen      = document.getElementById('chat-screen');
+    const roomInput       = document.getElementById('room-input');
+    const joinBtn         = document.getElementById('join-btn');
+    const leaveBtn        = document.getElementById('leave-btn');
+    const roomNameDisplay = document.getElementById('room-name-display');
+    const peerList        = document.getElementById('peer-list');
+    const eventLog        = document.getElementById('event-log');
+
+    // ════════════════════════════════════════════════════════════════════
+    //  Стан застосунку
+    // ════════════════════════════════════════════════════════════════════
+    const socket = io();          // підключення до сигнального сервера
+
+    let localStream = null;       // MediaStream з мікрофона
+
+    // Зберігаємо RTCPeerConnection та <audio> для кожного піра за його socket.id
+    const peerConnections = {};   // { [peerId]: RTCPeerConnection }
+    const audioElements   = {};   // { [peerId]: HTMLAudioElement }
+
+    // STUN-сервери Google — допомагають знайти публічну IP-адресу
+    const ICE_CONFIG = {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+      ],
+    };
+
+    // ════════════════════════════════════════════════════════════════════
+    //  Утиліти: лог та список учасників
+    // ════════════════════════════════════════════════════════════════════
+
+    function addLog(text, type = 'info') {
+      const time = new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const div  = document.createElement('div');
+      div.className = `log-entry log-${type}`;
+      div.innerHTML = `<span class="log-time">${time}</span>${text}`;
+      eventLog.appendChild(div);
+      eventLog.scrollTop = eventLog.scrollHeight;
+    }
+
+    function addPeerToList(peerId) {
+      if (document.getElementById(`peer-${peerId}`)) return; // вже є
+      const li = document.createElement('li');
+      li.id = `peer-${peerId}`;
+      li.innerHTML = `<span class="peer-dot"></span>${peerId.slice(0, 8)}...`;
+      peerList.appendChild(li);
+    }
+
+    function removePeerFromList(peerId) {
+      const li = document.getElementById(`peer-${peerId}`);
+      if (li) li.remove();
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  WebRTC: створення PeerConnection
+    // ════════════════════════════════════════════════════════════════════
+
+    function createPeerConnection(peerId) {
+      const pc = new RTCPeerConnection(ICE_CONFIG);
+
+      // Додаємо локальний аудіотрек, щоб пір чув нас
+      localStream.getTracks().forEach((track) => {
+        pc.addTrack(track, localStream);
+      });
+
+      // Надсилаємо ICE-кандидатів через сигнальний сервер
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit('ice-candidate', { targetId: peerId, candidate: event.candidate });
+        }
+      };
+
+      // Логуємо зміни стану ICE-з'єднання
+      pc.oniceconnectionstatechange = () => {
+        const s = pc.iceConnectionState;
+        const type = (s === 'connected' || s === 'completed') ? 'success'
+                   : (s === 'failed' || s === 'disconnected')  ? 'error'
+                   : 'warn';
+        addLog(`ICE [${peerId.slice(0,8)}]: ${s}`, type);
+      };
+
+      // Отримуємо аудіопотік від піра — динамічно створюємо <audio>
+      pc.ontrack = (event) => {
+        addLog(`Отримано аудіопотік від ${peerId.slice(0,8)}`, 'success');
+
+        const audio = document.createElement('audio');
+        audio.srcObject = event.streams[0];
+        audio.autoplay  = true;
+        document.body.appendChild(audio);
+
+        audioElements[peerId] = audio;
+      };
+
+      peerConnections[peerId] = pc;
+      return pc;
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  WebRTC: ініціатор — створює Offer та надсилає його пірові
+    // ════════════════════════════════════════════════════════════════════
+
+    async function startCall(peerId) {
+      addLog(`Надсилаємо offer → ${peerId.slice(0,8)}`, 'info');
+
+      const pc    = createPeerConnection(peerId);
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      socket.emit('offer', { targetId: peerId, offer });
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  Очищення: закриваємо PC та видаляємо <audio> для конкретного піра
+    // ════════════════════════════════════════════════════════════════════
+
+    function removePeer(peerId) {
+      if (peerConnections[peerId]) {
+        peerConnections[peerId].close();
+        delete peerConnections[peerId];
+      }
+      if (audioElements[peerId]) {
+        audioElements[peerId].remove();
+        delete audioElements[peerId];
+      }
+      removePeerFromList(peerId);
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  Вхід: отримати мікрофон → приєднатися до кімнати
+    // ════════════════════════════════════════════════════════════════════
+
+    joinBtn.addEventListener('click', async () => {
+      const roomName = roomInput.value.trim();
+      if (!roomName) return;
+
+      joinBtn.disabled = true;
+      addLog('Отримуємо доступ до мікрофона...', 'info');
+
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        addLog('Мікрофон доступний', 'success');
+      } catch (err) {
+        addLog(`Помилка мікрофона: ${err.message}`, 'error');
+        joinBtn.disabled = false;
+        return;
+      }
+
+      // Показуємо чат, ховаємо форму
+      roomNameDisplay.textContent = roomName;
+      loginScreen.style.display   = 'none';
+      chatScreen.style.display    = 'flex';
+
+      // Додаємо себе до списку учасників
+      const selfLi = document.createElement('li');
+      selfLi.className = 'peer-me';
+      selfLi.innerHTML = `<span class="peer-dot"></span>Ви (${socket.id.slice(0,8)}...)`;
+      peerList.prepend(selfLi);
+
+      socket.emit('join-room', roomName);
+      addLog(`Приєднуємось до кімнати "${roomName}"...`, 'info');
+    });
+
+    roomInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') joinBtn.click();
+    });
+
+    // ════════════════════════════════════════════════════════════════════
+    //  Вихід: закриваємо всі з'єднання та повертаємо форму
+    // ════════════════════════════════════════════════════════════════════
+
+    leaveBtn.addEventListener('click', () => {
+      // Закриваємо всі PeerConnection та видаляємо <audio>
+      for (const peerId of Object.keys(peerConnections)) {
+        removePeer(peerId);
+      }
+
+      // Зупиняємо мікрофон
+      if (localStream) {
+        localStream.getTracks().forEach((t) => t.stop());
+        localStream = null;
+      }
+
+      socket.emit('leave-room');
+      addLog('Вийшли з кімнати', 'warn');
+
+      // Скидаємо UI
+      peerList.innerHTML     = '';
+      eventLog.innerHTML     = '';
+      roomInput.value        = '';
+      joinBtn.disabled       = false;
+      chatScreen.style.display = 'none';
+      loginScreen.style.display = 'block';
+    });
+
+    // ════════════════════════════════════════════════════════════════════
+    //  Socket.io — обробники сигналізації
+    // ════════════════════════════════════════════════════════════════════
+
+    // Сервер підтвердив вхід і повернув список існуючих пірів
+    socket.on('room-joined', async ({ peers }) => {
+      addLog(`У кімнаті ${peers.length} існуючих учасників`, 'info');
+
+      // Ми — ініціатори для кожного існуючого піра
+      for (const peerId of peers) {
+        addPeerToList(peerId);
+        await startCall(peerId);
+      }
+    });
+
+    // Інший користувач щойно приєднався до кімнати
+    socket.on('peer-joined', ({ peerId }) => {
+      addLog(`Новий учасник: ${peerId.slice(0,8)}...`, 'success');
+      addPeerToList(peerId);
+
+      // Готуємо PeerConnection (чекаємо на offer від нього)
+      if (!peerConnections[peerId]) {
+        createPeerConnection(peerId);
+      }
+    });
+
+    // Отримали Offer від ініціатора → відповідаємо Answer
+    socket.on('offer', async ({ fromId, offer }) => {
+      addLog(`Отримано offer від ${fromId.slice(0,8)}`, 'info');
+
+      // PC може вже існувати (якщо peer-joined обробився раніше)
+      let pc = peerConnections[fromId];
+      if (!pc) pc = createPeerConnection(fromId);
+
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      socket.emit('answer', { targetId: fromId, answer });
+      addLog(`Надіслано answer → ${fromId.slice(0,8)}`, 'info');
+    });
+
+    // Отримали Answer → встановлюємо RemoteDescription
+    socket.on('answer', async ({ fromId, answer }) => {
+      addLog(`Отримано answer від ${fromId.slice(0,8)}`, 'info');
+      const pc = peerConnections[fromId];
+      if (pc) await pc.setRemoteDescription(new RTCSessionDescription(answer));
+    });
+
+    // Отримали ICE-кандидата — додаємо до відповідного PeerConnection
+    socket.on('ice-candidate', async ({ fromId, candidate }) => {
+      const pc = peerConnections[fromId];
+      if (pc) {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (err) {
+          addLog(`ICE помилка: ${err.message}`, 'error');
+        }
+      }
+    });
+
+    // Учасник відключився
+    socket.on('peer-left', ({ peerId }) => {
+      addLog(`Учасник відключився: ${peerId.slice(0,8)}...`, 'warn');
+      removePeer(peerId);
+    });
+  </script>
+</body>
+</html>

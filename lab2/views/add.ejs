@@ -1,0 +1,28 @@
+<%- include('partials/header') %>
+
+<main class="container">
+  <h2>Нова задача</h2>
+
+  <form action="/add" method="POST" class="task-form">
+    <div class="form-group">
+      <label for="title">Назва задачі:</label>
+      <input type="text" id="title" name="title" placeholder="Введіть назву задачі" required>
+    </div>
+
+    <div class="form-group">
+      <label for="status">Статус:</label>
+      <select id="status" name="status">
+        <option value="pending">pending</option>
+        <option value="in-progress">in-progress</option>
+        <option value="done">done</option>
+      </select>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">Зберегти задачу</button>
+      <a href="/tasks" class="btn btn-secondary">Скасувати</a>
+    </div>
+  </form>
+</main>
+
+<%- include('partials/footer') %>

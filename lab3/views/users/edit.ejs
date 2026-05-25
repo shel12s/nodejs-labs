@@ -1,0 +1,21 @@
+<h2>Редагувати користувача</h2>
+
+<form method="POST" class="form-box">
+
+    <label>Імʼя</label>
+    <input type="text" name="name" value="<%= user.name %>" required>
+
+    <label>Email</label>
+    <input type="email" name="email" value="<%= user.email %>" required>
+
+    <label>Вік</label>
+    <input type="number" name="age" value="<%= user.age %>">
+
+    <label>Роль</label>
+    <select name="role">
+        <option value="user" <%= user.role === 'user' ? 'selected' : '' %>>User</option>
+        <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+    </select>
+
+    <button class="btn">Зберегти</button>
+</form>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 5 — Чат реального часу</title>
+
+  <style>
+    /* ── Скидання та базові стилі ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Форма авторизації ────────────────────────────────────────────── */
+    #login-screen {
+      background: #ffffff;
+      padding: 40px 36px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      width: 340px;
+      text-align: center;
+    }
+
+    #login-screen h1 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      color: #1a1a2e;
+    }
+
+    #login-screen p.subtitle {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    #login-screen input[type="text"] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #login-screen input[type="text"]:focus {
+      border-color: #4f46e5;
+    }
+
+    #login-screen button {
+      margin-top: 14px;
+      width: 100%;
+      padding: 11px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #login-screen button:hover { background: #4338ca; }
+
+    #login-error {
+      margin-top: 10px;
+      color: #dc2626;
+      font-size: 0.85rem;
+      min-height: 18px;
+    }
+
+    /* ── Чат ──────────────────────────────────────────────────────────── */
+    #chat-screen {
+      display: none;           /* показується після входу */
+      flex-direction: column;
+      width: 680px;
+      max-width: 98vw;
+      height: 92vh;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      overflow: hidden;
+    }
+
+    /* Шапка чату */
+    #chat-header {
+      background: #4f46e5;
+      color: #fff;
+      padding: 14px 20px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #chat-header .dot {
+      width: 10px; height: 10px;
+      background: #86efac;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Область повідомлень */
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: #f8f9fc;
+    }
+
+    /* ── Бульбашка повідомлення ───────────────────────────────────────── */
+    .msg-row {
+      display: flex;
+      flex-direction: column;
+      max-width: 68%;
+    }
+
+    /* Чуже — ліворуч */
+    .msg-row.other { align-self: flex-start; align-items: flex-start; }
+    /* Своє  — праворуч */
+    .msg-row.own   { align-self: flex-end;   align-items: flex-end; }
+
+    .msg-author {
+      font-size: 0.75rem;
+      color: #888;
+      margin-bottom: 3px;
+      padding: 0 4px;
+    }
+
+    .msg-bubble {
+      padding: 9px 14px;
+      border-radius: 18px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .msg-row.own   .msg-bubble { background: #4f46e5; color: #fff; border-bottom-right-radius: 4px; }
+    .msg-row.other .msg-bubble { background: #e9eaf0; color: #1a1a2e; border-bottom-left-radius: 4px; }
+
+    .msg-time {
+      font-size: 0.72rem;
+      color: #aaa;
+      margin-top: 3px;
+      padding: 0 4px;
+    }
+
+    /* ── Системне повідомлення (по центру) ───────────────────────────── */
+    .msg-system {
+      align-self: center;
+      font-size: 0.8rem;
+      color: #888;
+      background: #eee;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin: 4px 0;
+    }
+
+    /* ── Поле вводу ──────────────────────────────────────────────────── */
+    #chat-footer {
+      padding: 14px 16px;
+      border-top: 1px solid #e5e7eb;
+      background: #fff;
+    }
+
+    #send-error {
+      font-size: 0.8rem;
+      color: #dc2626;
+      min-height: 16px;
+      margin-bottom: 8px;
+      padding: 0 2px;
+    }
+
+    #input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    #msg-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 24px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #msg-input:focus { border-color: #4f46e5; }
+
+    #send-btn {
+      padding: 10px 22px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    #send-btn:hover    { background: #4338ca; }
+    #send-btn:disabled { background: #a5b4fc; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Екран авторизації ──────────────────────────────────────────────── -->
+  <div id="login-screen">
+    <h1>💬 Чат</h1>
+    <p class="subtitle">Введіть ім'я, щоб увійти</p>
+    <input id="username-input" type="text" placeholder="Ваше ім'я..." maxlength="30" autocomplete="off" />
+    <button id="login-btn">Увійти</button>
+    <div id="login-error"></div>
+  </div>
+
+  <!-- ── Екран чату ─────────────────────────────────────────────────────── -->
+  <div id="chat-screen">
+    <div id="chat-header">
+      <div class="dot"></div>
+      <span id="chat-title">Чат реального часу</span>
+    </div>
+
+    <div id="messages"></div>
+
+    <div id="chat-footer">
+      <div id="send-error"></div>
+      <div id="input-row">
+        <input id="msg-input" type="text" placeholder="Введіть повідомлення..." maxlength="300" autocomplete="off" />
+        <button id="send-btn">Надіслати</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Socket.io клієнт — роздається самим сервером автоматично -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    // ── DOM-елементи ────────────────────────────────────────────────────
+    const loginScreen   = document.getElementById('login-screen');
+    const chatScreen    = document.getElementById('chat-screen');
+    const usernameInput = document.getElementById('username-input');
+    const loginBtn      = document.getElementById('login-btn');
+    const loginError    = document.getElementById('login-error');
+    const messagesEl    = document.getElementById('messages');
+    const msgInput      = document.getElementById('msg-input');
+    const sendBtn       = document.getElementById('send-btn');
+    const sendError     = document.getElementById('send-error');
+    const chatTitle     = document.getElementById('chat-title');
+
+    let socket   = null;   // сокет створюється лише після кліку "Увійти"
+    let myName   = '';     // ім'я поточного користувача
+
+    // ── Утиліти ─────────────────────────────────────────────────────────
+
+    // Прокрутка до останнього повідомлення
+    function scrollToBottom() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    // Додає звичайне повідомлення у чат
+    function addMessage({ author, text, time }, isMine) {
+      const row = document.createElement('div');
+      row.className = 'msg-row ' + (isMine ? 'own' : 'other');
+
+      if (!isMine) {
+        const authorEl = document.createElement('div');
+        authorEl.className = 'msg-author';
+        authorEl.textContent = author;
+        row.appendChild(authorEl);
+      }
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+      bubble.textContent = text;
+      row.appendChild(bubble);
+
+      const timeEl = document.createElement('div');
+      timeEl.className = 'msg-time';
+      timeEl.textContent = time;
+      row.appendChild(timeEl);
+
+      messagesEl.appendChild(row);
+      scrollToBottom();
+    }
+
+    // Додає системне повідомлення по центру
+    function addSystemMessage(text) {
+      const el = document.createElement('div');
+      el.className = 'msg-system';
+      el.textContent = text;
+      messagesEl.appendChild(el);
+      scrollToBottom();
+    }
+
+    // ── Логіка входу ────────────────────────────────────────────────────
+    function doLogin() {
+      const name = usernameInput.value.trim();
+      loginError.textContent = '';
+
+      // Базова клієнтська перевірка (сервер перевірить повторно)
+      if (name.length < 2) {
+        loginError.textContent = 'Ім\'я має містити щонайменше 2 символи.';
+        return;
+      }
+
+      myName = name;
+      loginBtn.disabled = true;
+
+      // Сокет створюється тут — після кліку, передаємо ім'я через auth
+      socket = io({ auth: { username: name } });
+
+      // Успішне підключення
+      socket.on('connect', () => {
+        loginScreen.style.display = 'none';
+        chatScreen.style.display  = 'flex';
+        chatTitle.textContent     = `Чат — ${myName}`;
+        msgInput.focus();
+      });
+
+      // Сервер відхилив підключення (middleware повернув помилку)
+      socket.on('connect_error', (err) => {
+        loginError.textContent = err.message;
+        loginBtn.disabled = false;
+        socket.disconnect();
+        socket = null;
+      });
+
+      // Хтось інший приєднався
+      socket.on('user:joined', ({ username }) => {
+        addSystemMessage(`${username} приєднався(-лась)`);
+      });
+
+      // Хтось відключився
+      socket.on('user:left', ({ username }) => {
+        addSystemMessage(`${username} покинув(-ла) чат`);
+      });
+
+      // Нове повідомлення від сервера
+      socket.on('message:new', (msg) => {
+        addMessage(msg, msg.author === myName);
+      });
+    }
+
+    loginBtn.addEventListener('click', doLogin);
+
+    // Дозволяємо натискати Enter у полі імені
+    usernameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    // ── Надсилання повідомлення ──────────────────────────────────────────
+    function sendMessage() {
+      const text = msgInput.value;
+      sendError.textContent = '';
+
+      if (!socket || !socket.connected) return;
+
+      // Надсилаємо з acknowledgement-колбеком
+      socket.emit('message:send', text, (response) => {
+        if (!response.ok) {
+          // Сервер повернув помилку валідації
+          sendError.textContent = response.error;
+        } else {
+          // Успіх — очищаємо поле
+          msgInput.value = '';
+        }
+      });
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Надсилання по Enter (Shift+Enter не надсилає)
+    msgInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>

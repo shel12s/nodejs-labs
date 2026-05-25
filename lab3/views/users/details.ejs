@@ -1,0 +1,28 @@
+<h2>Дані користувача</h2>
+
+<p><b>Імʼя:</b> <%= user.name %></p>
+<p><b>Email:</b> <%= user.email %></p>
+<p><b>Роль:</b> <%= user.role %></p>
+<p><b>Вік:</b> <%= user.age %></p>
+
+<hr>
+
+<h3>Контакти</h3>
+
+<a class="btn" href="/contacts/<%= user.id %>/create">+ Додати контакт</a>
+
+<table>
+    <tr><th>Телефон</th><th>Адреса</th><th>Тип</th><th></th></tr>
+
+    <% contacts.forEach(c => { %>
+        <tr>
+            <td><%= c.phone %></td>
+            <td><%= c.address %></td>
+            <td><%= c.type %></td>
+            <td>
+                <a href="/contacts/edit/<%= c.id %>">Редагувати</a>
+                <a href="/contacts/delete/<%= c.id %>" class="delete">Видалити</a>
+            </td>
+        </tr>
+    <% }) %>
+</table>

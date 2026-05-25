@@ -1,0 +1,31 @@
+<%- include('partials/header') %>
+
+<main class="container">
+  <h2>Деталі задачі</h2>
+
+  <table class="detail-table">
+    <tbody>
+      <tr>
+        <th>ID</th>
+        <td><%= task.id %></td>
+      </tr>
+      <tr>
+        <th>Назва</th>
+        <td><%= task.title %></td>
+      </tr>
+      <tr>
+        <th>Статус</th>
+        <td><span class="badge badge-<%= task.status %>"><%= task.status %></span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="detail-actions">
+    <a href="/tasks" class="btn btn-secondary">← Назад до списку</a>
+    <form action="/tasks/<%= task.id %>/delete" method="POST" onsubmit="return confirm('Видалити задачу?')">
+      <button type="submit" class="btn-delete">Видалити задачу</button>
+    </form>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

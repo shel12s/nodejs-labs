@@ -1,0 +1,76 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2><%= item.name %></h2>
+  <div class="d-flex gap-2">
+    <% if (locals.session && locals.session.role === 'admin') { %>
+      <a href="/items/<%= item._id %>/edit" class="btn btn-outline-primary btn-sm">Edit</a>
+      <form action="/items/<%= item._id %>/delete" method="POST"
+        onsubmit="return confirm('Delete this item permanently?')">
+        <button class="btn btn-outline-danger btn-sm">Delete</button>
+      </form>
+    <% } %>
+    <a href="/items" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-5">Category</dt><dd class="col-7"><%= item.category %></dd>
+          <dt class="col-5">Price</dt><dd class="col-7">$<%= item.price.toFixed(2) %></dd>
+          <dt class="col-5">Quantity</dt>
+          <dd class="col-7">
+            <%= item.quantity %>
+            <% if (item.quantity < item.minQuantity) { %>
+              <span class="badge bg-danger ms-1">Low Stock</span>
+            <% } %>
+          </dd>
+          <dt class="col-5">Min Quantity</dt><dd class="col-7"><%= item.minQuantity %></dd>
+          <dt class="col-5">Description</dt><dd class="col-7"><%= item.description || '—' %></dd>
+          <dt class="col-5">Added</dt><dd class="col-7"><%= new Date(item.createdAt).toLocaleDateString() %></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header fw-bold">Deduct Stock</div>
+      <div class="card-body">
+        <form action="/items/<%= item._id %>/deduct" method="POST">
+          <div class="mb-3">
+            <label class="form-label">Amount to deduct</label>
+            <input type="number" name="amount" class="form-control" min="1" max="<%= item.quantity %>" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Note (optional)</label>
+            <input type="text" name="note" class="form-control" placeholder="Reason..." />
+          </div>
+          <button type="submit" class="btn btn-warning" <%= item.quantity === 0 ? 'disabled' : '' %>>Deduct</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header fw-bold">Recent History (last 10)</div>
+  <% if (history.length === 0) { %>
+    <div class="card-body text-muted">No history for this item.</div>
+  <% } else { %>
+  <ul class="list-group list-group-flush">
+    <% history.forEach(h => { %>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>
+          <span class="badge bg-secondary me-2"><%= h.action %></span>
+          qty: <strong><%= h.quantity %></strong>
+          <span class="text-muted ms-2">by <%= h.username %></span>
+          <% if (h.note) { %><em class="text-muted ms-2">"<%= h.note %>"</em><% } %>
+        </span>
+        <small class="text-muted"><%= new Date(h.createdAt).toLocaleString() %></small>
+      </li>
+    <% }) %>
+  </ul>
+  <% } %>
+</div>

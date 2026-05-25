@@ -1,0 +1,16 @@
+<h2>Вхід</h2>
+
+<form method="POST" class="form-box">
+
+    <label>Email:</label>
+    <input type="email" name="email" required>
+
+    <label>Пароль:</label>
+    <input type="password" name="password" required>
+
+    <% if (error) { %>
+        <p class="error"><%= error %></p>
+    <% } %>
+
+    <button class="btn">Увійти</button>
+</form>

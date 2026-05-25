@@ -1,0 +1,178 @@
+/* Загальний reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  background: #f4f4f4;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  background: #2c3e50;
+  color: #fff;
+  padding: 12px 24px;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header h1 a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+header nav a {
+  color: #ccc;
+  text-decoration: none;
+  margin-left: 16px;
+  font-size: 14px;
+}
+
+header nav a:hover {
+  color: #fff;
+}
+
+/* Footer */
+footer {
+  background: #2c3e50;
+  color: #aaa;
+  text-align: center;
+  padding: 12px;
+  font-size: 13px;
+  margin-top: auto;
+}
+
+/* Головна сторінка */
+.home-main {
+  max-width: 600px;
+  margin: 60px auto;
+  text-align: center;
+  background: #fff;
+  padding: 40px;
+  border: 1px solid #ddd;
+}
+
+.home-main h2 {
+  margin-bottom: 12px;
+}
+
+.home-main p {
+  margin-bottom: 24px;
+  color: #555;
+}
+
+/* Кнопка */
+.btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #2c3e50;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.btn:hover {
+  background: #3d5166;
+}
+
+/* Макет weather-сторінки */
+.layout {
+  display: flex;
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 24px auto;
+  gap: 0;
+}
+
+/* Бічне меню */
+.sidebar {
+  width: 180px;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 16px;
+  flex-shrink: 0;
+}
+
+.sidebar h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #777;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar ul li {
+  margin-bottom: 6px;
+}
+
+.sidebar ul li a {
+  display: block;
+  padding: 6px 8px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+}
+
+.sidebar ul li a:hover {
+  background: #f0f0f0;
+}
+
+.sidebar ul li a.active {
+  background: #2c3e50;
+  color: #fff;
+}
+
+/* Основний контент */
+.content {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-left: none;
+  padding: 24px;
+}
+
+.content h2 {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+/* Таблиця погоди */
+.weather-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.weather-table th,
+.weather-table td {
+  border: 1px solid #ddd;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.weather-table thead tr {
+  background: #2c3e50;
+  color: #fff;
+}
+
+.weather-table tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}

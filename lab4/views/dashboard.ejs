@@ -1,0 +1,62 @@
+<h2 class="mb-4">Dashboard</h2>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body">
+        <h5 class="card-title">Total Items</h5>
+        <p class="display-4"><%= totalItems %></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-bg-warning h-100">
+      <div class="card-body">
+        <h5 class="card-title">Low Stock Items</h5>
+        <p class="display-4"><%= lowStockItems.length %></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-bg-info h-100">
+      <div class="card-body">
+        <h5 class="card-title">Categories</h5>
+        <p class="display-4"><%= totalCategories %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if (lowStockItems.length > 0) { %>
+<div class="card border-warning mb-4">
+  <div class="card-header bg-warning text-dark fw-bold">Low Stock Alerts</div>
+  <ul class="list-group list-group-flush">
+    <% lowStockItems.forEach(item => { %>
+      <li class="list-group-item d-flex justify-content-between">
+        <a href="/items/<%= item._id %>"><%= item.name %></a>
+        <span class="badge bg-danger"><%= item.quantity %> / <%= item.minQuantity %> min</span>
+      </li>
+    <% }) %>
+  </ul>
+</div>
+<% } %>
+
+<div class="card">
+  <div class="card-header fw-bold">Recent Transactions</div>
+  <% if (recentHistory.length === 0) { %>
+    <div class="card-body text-muted">No transactions yet.</div>
+  <% } else { %>
+  <ul class="list-group list-group-flush">
+    <% recentHistory.forEach(h => { %>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>
+          <span class="badge bg-secondary me-2"><%= h.action %></span>
+          <strong><%= h.itemName %></strong>
+          <span class="text-muted ms-2">by <%= h.username %></span>
+        </span>
+        <small class="text-muted"><%= new Date(h.createdAt).toLocaleString() %></small>
+      </li>
+    <% }) %>
+  </ul>
+  <% } %>
+</div>

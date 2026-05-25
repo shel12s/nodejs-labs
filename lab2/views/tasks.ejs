@@ -1,0 +1,47 @@
+<%- include('partials/header') %>
+
+<main class="container">
+  <div class="page-header">
+    <h2>Список задач</h2>
+    <a href="/add" class="btn">+ Нова задача</a>
+  </div>
+
+  <div class="filter-bar">
+    <span>Фільтр за статусом:</span>
+    <a href="/tasks" class="filter-link <%= statusFilter === '' ? 'active' : '' %>">Всі</a>
+    <a href="/tasks?status=pending"   class="filter-link <%= statusFilter === 'pending'     ? 'active' : '' %>">Pending</a>
+    <a href="/tasks?status=in-progress" class="filter-link <%= statusFilter === 'in-progress' ? 'active' : '' %>">In Progress</a>
+    <a href="/tasks?status=done"      class="filter-link <%= statusFilter === 'done'        ? 'active' : '' %>">Done</a>
+  </div>
+
+  <% if (tasks.length === 0) { %>
+    <p class="empty-msg">Задач не знайдено.</p>
+  <% } else { %>
+    <table class="tasks-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Назва</th>
+          <th>Статус</th>
+          <th>Дії</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% tasks.forEach(task => { %>
+        <tr>
+          <td><%= task.id %></td>
+          <td><a href="/tasks/<%= task.id %>"><%= task.title %></a></td>
+          <td><span class="badge badge-<%= task.status %>"><%= task.status %></span></td>
+          <td>
+            <form action="/tasks/<%= task.id %>/delete" method="POST" onsubmit="return confirm('Видалити задачу?')">
+              <button type="submit" class="btn-delete">Видалити</button>
+            </form>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</main>
+
+<%- include('partials/footer') %>

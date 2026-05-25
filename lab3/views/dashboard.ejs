@@ -1,0 +1,15 @@
+<h1>Dashboard</h1>
+
+<p>Останні користувачі:</p>
+
+<table>
+    <tr><th>ID</th><th>Імʼя</th><th>Email</th></tr>
+
+    <% users.forEach(u => { %>
+        <tr>
+            <td><%= u.id %></td>
+            <td><%= u.name %></td>
+            <td><%= u.email %></td>
+        </tr>
+    <% }) %>
+</table>

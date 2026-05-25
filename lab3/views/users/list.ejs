@@ -1,0 +1,35 @@
+<h2>Користувачі</h2>
+
+<form method="GET" class="search-form">
+    <input type="text" name="search" value="<%= search %>" placeholder="Пошук">
+    <button class="btn">Пошук</button>
+</form>
+
+<a class="btn" href="/users/create">+ Створити користувача</a>
+
+<table class="user-table">
+    <tr>
+        <th>ID</th>
+        <th>Імʼя</th>
+        <th>Email</th>
+        <th>Дія</th>
+    </tr>
+
+    <% users.forEach(user => { %>
+        <tr data-user="<%= user.id %>">
+            <td><%= user.id %></td>
+            <td><a href="/users/<%= user.id %>"><%= user.name %></a></td>
+            <td><%= user.email %></td>
+            <td>
+                <a class="btn-small" href="/users/edit/<%= user.id %>">Редагувати</a>
+                <a class="btn-small delete" href="/users/delete/<%= user.id %>">Видалити</a>
+            </td>
+        </tr>
+    <% }) %>
+</table>
+
+<div class="pagination">
+    <% for (let i = 1; i <= pages; i++) { %>
+        <a class="<%= i === page ? 'active' : '' %>" href="?page=<%= i %>&search=<%= search %>"><%= i %></a>
+    <% } %>
+</div>

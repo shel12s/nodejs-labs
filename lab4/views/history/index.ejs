@@ -1,0 +1,46 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Transaction History</h2>
+</div>
+
+<form class="row g-2 mb-4" method="GET" action="/history">
+  <div class="col-sm-4">
+    <select name="action" class="form-select">
+      <option value="">All actions</option>
+      <% ['add','update','deduct','delete'].forEach(a => { %>
+        <option value="<%= a %>" <%= (typeof action !== 'undefined' && action === a) ? 'selected' : '' %>>
+          <%= a %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-sm-2">
+    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+  </div>
+</form>
+
+<% if (history.length === 0) { %>
+  <div class="alert alert-info">No transactions found.</div>
+<% } else { %>
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-dark">
+      <tr><th>Date</th><th>Action</th><th>Item</th><th>Qty</th><th>User</th><th>Note</th></tr>
+    </thead>
+    <tbody>
+      <% history.forEach(h => { %>
+        <tr>
+          <td><small><%= new Date(h.createdAt).toLocaleString() %></small></td>
+          <td>
+            <% const badgeMap = {add:'success',update:'primary',deduct:'warning',delete:'danger'}; %>
+            <span class="badge bg-<%= badgeMap[h.action] || 'secondary' %>"><%= h.action %></span>
+          </td>
+          <td><%= h.itemName %></td>
+          <td><%= h.quantity %></td>
+          <td><%= h.username %></td>
+          <td><em class="text-muted"><%= h.note || '—' %></em></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>

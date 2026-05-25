@@ -1,0 +1,28 @@
+<h2>Створити користувача</h2>
+
+<form method="POST" class="form-box">
+
+    <label>Імʼя</label>
+    <input type="text" name="name" required>
+
+    <label>Email</label>
+    <input type="email" name="email" required>
+
+    <label>Пароль</label>
+    <input type="password" name="password" required>
+
+    <label>Вік</label>
+    <input type="number" name="age">
+
+    <label>Роль</label>
+    <select name="role">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+    </select>
+
+    <% if (error) { %>
+        <p class="error"><%= error %></p>
+    <% } %>
+
+    <button class="btn">Створити</button>
+</form>

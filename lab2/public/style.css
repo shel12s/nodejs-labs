@@ -1,0 +1,281 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  background: #f4f4f4;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ─── Header ──────────────────────────────────────────── */
+header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 12px 24px;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+header h1 a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+header nav a {
+  color: #aaa;
+  text-decoration: none;
+  margin-left: 18px;
+  font-size: 14px;
+}
+
+header nav a:hover {
+  color: #fff;
+}
+
+/* ─── Footer ──────────────────────────────────────────── */
+footer {
+  background: #1a1a2e;
+  color: #888;
+  text-align: center;
+  padding: 12px;
+  font-size: 13px;
+  margin-top: auto;
+}
+
+/* ─── Загальний контейнер ─────────────────────────────── */
+.container {
+  max-width: 960px;
+  margin: 28px auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 28px;
+}
+
+/* ─── Головна сторінка ────────────────────────────────── */
+.home-main {
+  max-width: 520px;
+  margin: 60px auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 40px;
+  text-align: center;
+}
+
+.home-main h2 {
+  margin-bottom: 12px;
+}
+
+.home-main p {
+  margin-bottom: 28px;
+  color: #555;
+}
+
+.home-links {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* ─── Кнопки ──────────────────────────────────────────── */
+.btn {
+  display: inline-block;
+  padding: 9px 20px;
+  background: #1a1a2e;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #2e2e50;
+}
+
+.btn-secondary {
+  background: #555;
+}
+
+.btn-secondary:hover {
+  background: #333;
+}
+
+.btn-delete {
+  padding: 5px 12px;
+  background: #c0392b;
+  color: #fff;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: #a93226;
+}
+
+/* ─── Заголовок сторінки задач ────────────────────────── */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+/* ─── Фільтр-панель ───────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.filter-link {
+  padding: 4px 12px;
+  border: 1px solid #ccc;
+  text-decoration: none;
+  color: #333;
+  font-size: 13px;
+}
+
+.filter-link:hover,
+.filter-link.active {
+  background: #1a1a2e;
+  color: #fff;
+  border-color: #1a1a2e;
+}
+
+/* ─── Таблиця задач ───────────────────────────────────── */
+.tasks-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tasks-table th,
+.tasks-table td {
+  border: 1px solid #ddd;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.tasks-table thead tr {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.tasks-table tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.tasks-table a {
+  color: #1a1a2e;
+}
+
+.empty-msg {
+  color: #888;
+  font-style: italic;
+  margin-top: 16px;
+}
+
+/* ─── Таблиця деталей задачі ──────────────────────────── */
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+}
+
+.detail-table th,
+.detail-table td {
+  border: 1px solid #ddd;
+  padding: 10px 14px;
+}
+
+.detail-table th {
+  background: #f0f0f0;
+  width: 140px;
+  text-align: left;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* ─── Бейджі статусів ─────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 2px;
+}
+
+.badge-pending {
+  background: #f0ad4e;
+  color: #fff;
+}
+
+.badge-in-progress {
+  background: #5bc0de;
+  color: #fff;
+}
+
+.badge-done {
+  background: #5cb85c;
+  color: #fff;
+}
+
+/* ─── Форма додавання ─────────────────────────────────── */
+.task-form {
+  max-width: 480px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #1a1a2e;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 8px;
+}

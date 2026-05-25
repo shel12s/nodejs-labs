@@ -1,0 +1,21 @@
+<h2><%= contact ? "Редагувати" : "Створити" %> контакт</h2>
+
+<form method="POST" class="form-box">
+
+    <input type="hidden" name="user_id" value="<%= userId %>">
+
+    <label>Телефон</label>
+    <input type="text" name="phone" value="<%= contact?.phone || "" %>">
+
+    <label>Адреса</label>
+    <input type="text" name="address" value="<%= contact?.address || "" %>">
+
+    <label>Тип</label>
+    <select name="type">
+        <option value="mobile" <%= contact?.type === "mobile" ? "selected" : "" %>>Мобільний</option>
+        <option value="home" <%= contact?.type === "home" ? "selected" : "" %>>Домашній</option>
+        <option value="work" <%= contact?.type === "work" ? "selected" : "" %>>Робочий</option>
+    </select>
+
+    <button class="btn">Зберегти</button>
+</form>

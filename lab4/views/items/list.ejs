@@ -1,0 +1,69 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Inventory Items</h2>
+  <% if (locals.session && locals.session.role === 'admin') { %>
+    <a href="/items/add" class="btn btn-success">+ Add Item</a>
+  <% } %>
+</div>
+
+<!-- Search / Filter -->
+<form class="row g-2 mb-4" method="GET" action="/items">
+  <div class="col-sm-5">
+    <input type="text" name="search" class="form-control" placeholder="Search by name..."
+      value="<%= typeof search !== 'undefined' && search ? search : '' %>" />
+  </div>
+  <div class="col-sm-4">
+    <select name="category" class="form-select">
+      <option value="">All categories</option>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat %>" <%= (typeof category !== 'undefined' && category === cat) ? 'selected' : '' %>>
+          <%= cat %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-sm-3">
+    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+  </div>
+</form>
+
+<% if (items.length === 0) { %>
+  <div class="alert alert-info">No items found.</div>
+<% } else { %>
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Name</th><th>Category</th><th>Qty</th><th>Min Qty</th><th>Price</th><th>Status</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% items.forEach(item => { %>
+        <tr>
+          <td><a href="/items/<%= item._id %>"><%= item.name %></a></td>
+          <td><%= item.category %></td>
+          <td><%= item.quantity %></td>
+          <td><%= item.minQuantity %></td>
+          <td>$<%= item.price.toFixed(2) %></td>
+          <td>
+            <% if (item.quantity < item.minQuantity) { %>
+              <span class="badge bg-danger">Low Stock</span>
+            <% } else { %>
+              <span class="badge bg-success">OK</span>
+            <% } %>
+          </td>
+          <td>
+            <a href="/items/<%= item._id %>" class="btn btn-sm btn-outline-secondary">View</a>
+            <% if (locals.session && locals.session.role === 'admin') { %>
+              <a href="/items/<%= item._id %>/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+              <form action="/items/<%= item._id %>/delete" method="POST" class="d-inline"
+                onsubmit="return confirm('Delete this item?')">
+                <button class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>
