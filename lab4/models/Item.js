@@ -11,9 +11,8 @@ const itemSchema = new mongoose.Schema({
   updatedAt:   { type: Date, default: Date.now },
 });
 
-itemSchema.pre('save', function (next) {
+itemSchema.pre('save', async function () {
   this.updatedAt = new Date();
-  next();
 });
 
 itemSchema.virtual('isLowStock').get(function () {
